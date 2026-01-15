@@ -40,12 +40,12 @@ jobs:
           echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
           echo "Pulling latest image..."
-          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/githuactioncicd-service-backend-1:latest
+          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/cicd-githubnew:latest
 
           echo "Stopping & removing old container..."
           docker stop service-backend-1 || true
           docker rm service-backend-1 || true
 
           echo "Running new container..."
-          docker run -d --name service-backend-1 -p 4000:4000 ${{ secrets.DOCKERHUB_USERNAME }}/githuactioncicd-service-backend-1:latest
+          docker run -d --name service-backend-1 -p 4000:4000 ${{ secrets.DOCKERHUB_USERNAME }}/cicd-githubnew:latest
         EOF
