@@ -12,6 +12,23 @@ jobs:
     runs-on: [self-hosted, linux]
 
     steps:
+    - name: start Discord
+      run: |
+        curl -H "Content-Type: application/json" \
+        -d '{
+          "username": "GitHub Actions",
+          "embeds": [{
+            "title": "...............CI/CD START................",
+            "color": 3066993,
+            "fields": [
+              {"name": "Repository", "value": "'"${{ github.repository }}"'", "inline": true},
+              {"name": "Branch", "value": "'"${{ github.ref_name }}"'", "inline": true},
+              {"name": "Workflow", "value": "'"${{ github.workflow }}"'"}
+            ]
+          }]
+        }' \
+        ${{ secrets.DISCORD_WEBHOOK_URL }}
+
     - name: Checkout repo
       uses: actions/checkout@v4
 
@@ -49,3 +66,40 @@ jobs:
           echo "Running new container..."
           docker run -d --name service-backend-1 -p 4000:4000 ${{ secrets.DOCKERHUB_USERNAME }}/cicd-githubnew:latest
         EOF
+
+
+    - name: Notify Discord (Success)
+      if: success()
+      run: |
+        curl -H "Content-Type: application/json" \
+        -d '{
+          "username": "GitHub Actions",
+          "embeds": [{
+            "title": "✅ CI/CD SUCCESS",
+            "color": 3066993,
+            "fields": [
+              {"name": "Repository", "value": "'"${{ github.repository }}"'", "inline": true},
+              {"name": "Branch", "value": "'"${{ github.ref_name }}"'", "inline": true},
+              {"name": "Commit", "value": "'"${{ github.sha }}"'"}
+            ]
+          }]
+        }' \
+        ${{ secrets.DISCORD_WEBHOOK_URL }}
+
+    - name: Notify Discord (Failure)
+      if: failure()
+      run: |
+        curl -H "Content-Type: application/json" \
+        -d '{
+          "username": "GitHub Actions",
+          "embeds": [{
+            "title": "❌ CI/CD FAILED",
+            "color": 15158332,
+            "fields": [
+              {"name": "Repository", "value": "'"${{ github.repository }}"'", "inline": true},
+              {"name": "Branch", "value": "'"${{ github.ref_name }}"'", "inline": true},
+              {"name": "Workflow", "value": "'"${{ github.workflow }}"'"}
+            ]
+          }]
+        }' \
+        ${{ secrets.DISCORD_WEBHOOK_URL }}
